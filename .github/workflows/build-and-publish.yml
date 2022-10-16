@@ -1,0 +1,47 @@
+name: Build & Publish
+on: [workflow_dispatch]
+
+jobs:
+  build:
+    name: release
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checlout code
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14
+    # Run install dependencies
+    - name: Install dependencies
+      run: npm install
+    # Run tests
+    - name: Build 
+      run: npm run compile
+    # Read changelog and read versions etc.
+    - name: Check version is mentioned in Changelog
+      id: changelog_reader
+      uses: mindsers/changelog-reader-action@v2
+      with:
+        validation_depth: 10
+        path: './CHANGELOG.md'
+    # Sample go setup and program run Or could be your project run
+    - name: Setup Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.17.0'
+    - run: go version
+    # Run Go program
+    - name: Build
+      run: go run ./hello.go
+    # Create Release with artifacts
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+      with:
+        tag_name : "v${{ steps.changelog_reader.outputs.version }}"
+        name: "v${{ steps.changelog_reader.outputs.version }}"
+        body: ${{ steps.changelog_reader.outputs.changes }}
