@@ -14,12 +14,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 14
-    # Run install dependencies
-    - name: Install dependencies
-      run: npm install
-    # Run tests
-    - name: Build 
-      run: npm run compile
     # Read changelog and read versions etc.
     - name: Check version is mentioned in Changelog
       id: changelog_reader
